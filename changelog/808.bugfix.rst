@@ -1,0 +1,1 @@
+Snapshot the keyword arguments passed to :meth:`~pluggy.HookCaller.call_historic`, so that mutating the mapping afterwards no longer changes the arguments replayed to plugins registered later.

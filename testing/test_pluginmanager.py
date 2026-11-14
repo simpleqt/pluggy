@@ -540,6 +540,30 @@ def test_register_historic(pm: PluginManager) -> None:
     assert out == [1, 10, 120, 12]
 
 
+def test_register_historic_snapshots_call_kwargs(pm: PluginManager) -> None:
+    """The kwargs mapping passed to call_historic() is snapshotted, so mutating
+    it afterwards does not change what late plugins receive (#808)."""
+
+    class Hooks:
+        @hookspec(historic=True)
+        def he_method1(self, arg): ...
+
+    pm.add_hookspecs(Hooks)
+
+    out = []
+    kwargs = {"arg": 1}
+    pm.hook.he_method1.call_historic(kwargs=kwargs)
+    kwargs["arg"] = 2
+
+    class Plugin:
+        @hookimpl
+        def he_method1(self, arg):
+            out.append(arg)
+
+    pm.register(Plugin())
+    assert out == [1]
+
+
 def test_historic_with_subset_hook_caller(pm: PluginManager) -> None:
     class Hooks:
         @hookspec(historic=True)

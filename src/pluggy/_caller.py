@@ -212,9 +212,11 @@ class HookCaller:
             from a hook implementation.
         """
         assert self._call_history is not None
-        kwargs = kwargs or {}
-        kwargs = self._apply_defaults(kwargs)
+        kwargs = self._apply_defaults(kwargs or {})
         self._verify_all_args_are_provided(kwargs)
+        # Snapshot the mapping so that mutating it after this call does not
+        # change what is replayed to plugins registered afterwards (#808).
+        kwargs = dict(kwargs)
         self._call_history.append((kwargs, result_callback))
         # Historizing hooks don't return results.
         # Remember firstresult isn't compatible with historic.
